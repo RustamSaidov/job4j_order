@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
-
-    private int id;
-    private int userId;
-    private int dishId;
+public class OrderDTO {
+    private Order order;
+    private Dish dish;
 }
