@@ -1,23 +1,28 @@
 package ru.job4j.order.service;
 
+import lombok.AllArgsConstructor;
+import net.jcip.annotations.ThreadSafe;
+import org.springframework.stereotype.Service;
 import ru.job4j.order.model.OrderDTO;
+import ru.job4j.order.repository.DishRepository;
+import ru.job4j.order.repository.OrderRepository;
 
 import java.util.Optional;
 
-public interface OrderService {
+@ThreadSafe
+@Service
+@AllArgsConstructor
+public class OrderService {
 
-    Optional<OrderDTO> findById(int id);
+    private final OrderRepository orderRepository;
+    private final DishRepository dishRepository;
 
-    /*
-    Order save(Order order);
-
-    boolean deleteById(int id);
-
-    boolean update(int id, Order order);
-
-    List<Order> findAll();
-
-    List<Order> findByName(String name);
-
-     */
+    public Optional<OrderDTO> findById(int id) {
+        var optionalOrder = orderRepository.findById(id);
+        if (optionalOrder.isEmpty()) {
+            return Optional.empty();
+        }
+        var dish = dishRepository.findById(optionalOrder.get().getDishId());
+        return Optional.of(new OrderDTO(optionalOrder.get(), dish.get()));
+    }
 }
