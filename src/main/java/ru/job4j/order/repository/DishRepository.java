@@ -1,6 +1,6 @@
 package ru.job4j.order.repository;
 
-import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -13,12 +13,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@Data
+
 public class DishRepository {
 
-    @Value("http://localhost:8080/dish")
+    @Value("http://localhost:8090/dish")
     private String url;
+
     private final RestTemplate client;
+
+    @Autowired
+    public DishRepository(RestTemplate client) {
+        this.client = client;
+    }
 
     public Optional<Dish> findById(int id) {
         return Optional.ofNullable(client.getForEntity(

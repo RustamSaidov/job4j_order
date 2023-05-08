@@ -17,7 +17,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @GetMapping("/order/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> findById(@PathVariable int id) {
         var orderDTO = this.orderService.findById(id);
         return new ResponseEntity<OrderDTO>(
