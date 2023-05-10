@@ -3,12 +3,14 @@ package ru.job4j.order.controller;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import ru.job4j.order.model.Order;
 import ru.job4j.order.model.OrderDTO;
 import ru.job4j.order.service.OrderService;
+
+import java.net.MalformedURLException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/order")
@@ -24,5 +26,11 @@ public class OrderController {
                 orderDTO.orElse(new OrderDTO()),
                 orderDTO.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
         );
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<Order> save(@RequestBody Order order) throws MalformedURLException {
+        Optional<Order> registeredOrder = Optional.ofNullable(orderService.save(order));
+        return ResponseEntity.of(registeredOrder);
     }
 }
