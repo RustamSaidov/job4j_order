@@ -24,7 +24,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final DishRepository dishRepository;
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<Order, Object> kafkaTemplateForOrder;
+    private final KafkaTemplate<OrderStatus, Object> kafkaTemplateForOrderStatus;
 
     public Order save(Order order) {
         order.setOrderStatus("received");
@@ -33,23 +34,22 @@ public class OrderService {
         OrderStatus orderStatus = new OrderStatus(savedOrder.getId(), savedOrder.getOrderStatus());
         //------------------------------------
         System.out.println("!!!!!!!!!!!!!!!!!!!!!! order_status_notification: " + orderStatus);
-        kafkaTemplate.send("order_status_notification", orderStatus);
+//        kafkaTemplateForOrderStatus.send("order_status_notification", orderStatus);
         //------------------------------------
 
-        kafkaTemplate.send("preorder", savedOrder);
+        kafkaTemplateForOrder.send("preorder", savedOrder);
         return savedOrder;
     }
 
     @KafkaListener(topics = "cooked_order")
     public void receiveCookedStatus(Order order) {
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!! order from kitchen: " + order);
         log.debug(order.toString());
-        if(Objects.equals(order.getOrderStatus(), "impossible to complete")){
-            orderRepository.deleteById(order.getId());
-        }
         OrderStatus orderStatus = new OrderStatus(order.getId(), order.getOrderStatus());
         //------------------------------------
         System.out.println("!!!!!!!!!!!!!!!!!!!!!! order_status_notification: " + orderStatus);
-        kafkaTemplate.send("order_status_notification", orderStatus);
+        orderRepository.save(order);
+//        kafkaTemplateForOrderStatus.send("order_status_notification", orderStatus);
         //------------------------------------
 
     }
