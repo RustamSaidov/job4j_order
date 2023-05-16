@@ -12,7 +12,6 @@ import ru.job4j.order.model.OrderStatus;
 import ru.job4j.order.repository.DishRepository;
 import ru.job4j.order.repository.OrderRepository;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @ThreadSafe
@@ -32,25 +31,17 @@ public class OrderService {
         order.setUserId(1);
         var savedOrder = orderRepository.save(order);
         OrderStatus orderStatus = new OrderStatus(savedOrder.getId(), savedOrder.getOrderStatus());
-        //------------------------------------
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!! order_status_notification: " + orderStatus);
-//        kafkaTemplateForOrderStatus.send("order_status_notification", orderStatus);
-        //------------------------------------
-
+        kafkaTemplateForOrderStatus.send("notification", orderStatus);
         kafkaTemplateForOrder.send("preorder", savedOrder);
         return savedOrder;
     }
 
     @KafkaListener(topics = "cooked_order")
     public void receiveCookedStatus(Order order) {
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!! order from kitchen: " + order);
         log.debug(order.toString());
         OrderStatus orderStatus = new OrderStatus(order.getId(), order.getOrderStatus());
-        //------------------------------------
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!! order_status_notification: " + orderStatus);
         orderRepository.save(order);
-//        kafkaTemplateForOrderStatus.send("order_status_notification", orderStatus);
-        //------------------------------------
+        kafkaTemplateForOrderStatus.send("notification", orderStatus);
 
     }
 

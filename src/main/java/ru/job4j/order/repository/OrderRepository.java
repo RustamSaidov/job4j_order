@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface OrderRepository extends CrudRepository<Order, Integer> {
     List<Order> findAll();
-
-//    boolean deleteById(int id);
 }
